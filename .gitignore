@@ -26,3 +26,7 @@ JLinkLog.txt
 *.map
 # 这个根据电脑来的，忽略掉
 *.ASUS
+.vscode/c_cpp_properties.json
+.vscode/keil-assistant.log
+.vscode/uv4.log
+.vscode/uv4.log.lock
