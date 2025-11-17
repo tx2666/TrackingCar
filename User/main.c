@@ -8,6 +8,7 @@
 #include <string.h>
 #include "Motor.h"
 #include "PID.h"
+#include "UI.h"
 
 PID_Typedef PID_Motor1;
 PID_Typedef PID_Motor2;
@@ -17,10 +18,9 @@ uint8_t Mode = 0;
 
 int main(void)
 {
-	OLED_Init();
-
-	OLED_ShowString(1, 1, "OK");
-
+	UI_Init();
+	Show_UI(&root);
+	
 	while (1)
 	{
 		
