@@ -92,10 +92,5 @@ void Show_UI(UI_typedef *UI_Structure)
         UI_Structure->cursor0 = UI_Structure->cursor;
     }
     OLED_ShowChar(UI_Structure->cursor,  1, '>');       // 显示当前光标
-    
-    if (strcmp("PID", UI_Structure->line1))
-    {
-        
-    }
 }
 
