@@ -13,13 +13,14 @@
 PID_Typedef PID_Motor1;
 PID_Typedef PID_Motor2;
 
-uint8_t KeyNum;
 uint8_t Mode = 0;
 
 int main(void)
 {
 	UI_Init();
-	Show_UI(&UI_root);
+	Show_UI(&UI_PID);
+	Show_PID(-1.1, 1.2, 1.3);
+	Key_Init();
 	
 	while (1)
 	{
@@ -33,7 +34,8 @@ void TIM1_UP_IRQHandler(void)
 {
 	if (TIM_GetITStatus(TIM1, TIM_IT_Update) == SET)
 	{
-		
+		Key_Tick();
+
 		TIM_ClearITPendingBit(TIM1, TIM_IT_Update);
 	}
 }
