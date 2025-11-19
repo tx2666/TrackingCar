@@ -19,7 +19,7 @@ uint8_t Mode = 0;
 int main(void)
 {
 	UI_Init();
-	Show_UI(&root);
+	Show_UI(&UI_root);
 	
 	while (1)
 	{
