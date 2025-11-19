@@ -1,6 +1,7 @@
 #include "stm32f10x.h"                  // Device header
 #include "OLED.h"
 #include <string.h>
+#include <math.h>
 
 typedef struct {
     char line1[16];
@@ -13,40 +14,40 @@ typedef struct {
     uint8_t exist_title;
 } UI_typedef;
 
-UI_typedef root;
-UI_typedef start;
-UI_typedef PID;
+UI_typedef UI_root;
+UI_typedef UI_start;
+UI_typedef UI_PID;
 
 void UI_Init(void)
 {
     OLED_Init();
     /* 主菜单 */
-    root.exist_title = 0;
-    strcpy(root.line1, "Start");
-    strcpy(root.line2, "PID");
-    strcpy(root.line3, "");
-    strcpy(root.line4, "");
-    root.cursor  = 1;
-    root.cursor0 = 1;
-    root.Num = 0;
+    UI_root.exist_title = 0;
+    strcpy(UI_root.line1, "Start");
+    strcpy(UI_root.line2, "PID");
+    strcpy(UI_root.line3, "");
+    strcpy(UI_root.line4, "");
+    UI_root.cursor  = 1;
+    UI_root.cursor0 = 1;
+    UI_root.Num = 0;
     /* Start菜单 */
-    start.exist_title = 1;
-    strcpy(start.line1, "Start");
-    strcpy(start.line2, "");
-    strcpy(start.line3, "");
-    strcpy(start.line4, "");
-    start.cursor  = 2;
-    start.cursor0 = 2;
-    start.Num = 1;
+    UI_start.exist_title = 1;
+    strcpy(UI_start.line1, "Start");
+    strcpy(UI_start.line2, "Press Key3 to start");
+    strcpy(UI_start.line3, "");
+    strcpy(UI_start.line4, "");
+    UI_start.cursor  = 2;
+    UI_start.cursor0 = 2;
+    UI_start.Num = 1;
     /* PID */
-    start.exist_title = 1;
-    strcpy(PID.line1, "PID");
-    strcpy(PID.line2, "Kp");
-    strcpy(PID.line3, "Ki");
-    strcpy(PID.line4, "Kd");
-    PID.cursor  = 2;
-    PID.cursor0 = 2;
-    PID.Num = 2;
+    UI_start.exist_title = 1;
+    strcpy(UI_PID.line1, "PID");
+    strcpy(UI_PID.line2, "Kp");
+    strcpy(UI_PID.line3, "Ki");
+    strcpy(UI_PID.line4, "Kd");
+    UI_PID.cursor  = 2;
+    UI_PID.cursor0 = 2;
+    UI_PID.Num = 2;
 }
 
 /**
@@ -58,7 +59,24 @@ void UI_Init(void)
   */
 void Show_PID(float Kp, float Ki, float Kd)
 {
+    int start_pos = 8;
+    if (Kp < 0) OLED_ShowChar(2, start_pos, '-');
+    else OLED_ShowChar(2, start_pos, '+');
+    OLED_ShowNum(2, start_pos+1, fabs((int)Kp), 2);
+    OLED_ShowChar(2, start_pos+3, '.');
+    OLED_ShowNum(2, start_pos+4, (int)(fabs((Kp-(int)Kp)*100)), 2);
 
+    if (Ki < 0) OLED_ShowChar(3, start_pos, '-');
+    else OLED_ShowChar(3, start_pos, '+');
+    OLED_ShowNum(3, start_pos+1, fabs((int)Ki), 2);
+    OLED_ShowChar(3, start_pos+3, '.');
+    OLED_ShowNum(3, start_pos+4, (int)(fabs((Ki-(int)Ki)*100)), 2);
+
+    if (Kd < 0) OLED_ShowChar(4, start_pos, '-');
+    else OLED_ShowChar(4, start_pos, '+');
+    OLED_ShowNum(4, start_pos+1, fabs((int)Kd), 2);
+    OLED_ShowChar(4, start_pos+3, '.');
+    OLED_ShowNum(4, start_pos+4, (int)(fabs((Kd-(int)Kd)*100)), 2);
 }
 
 /**

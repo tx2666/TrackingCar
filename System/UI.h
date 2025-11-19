@@ -13,11 +13,12 @@ typedef struct {
     uint8_t exist_title;
 } UI_typedef;
 
-extern UI_typedef root;
-extern UI_typedef start;
-extern UI_typedef PID;
+extern UI_typedef UI_root;
+extern UI_typedef UI_start;
+extern UI_typedef UI_PID;
 
 void UI_Init(void);
+void Show_PID(float Kp, float Ki, float Kd);
 void Show_UI(UI_typedef *UI_Structure);
 
 #endif
