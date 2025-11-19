@@ -18,7 +18,12 @@ extern UI_typedef UI_start;
 extern UI_typedef UI_PID;
 
 void UI_Init(void);
-void Show_PID(float Kp, float Ki, float Kd);
-void Show_UI(UI_typedef *UI_Structure);
+void UI_Show_PID(float Kp, float Ki, float Kd);
+void UI_Show(UI_typedef *UI_Structure);
+void UI_Show_Edit_Mode(uint8_t Mode);
+void UI_Reset_Cursor(UI_typedef *UI_Structure);
+void UI_MoveDown_Cursor(UI_typedef *UI_Structure);
+void UI_MoveUP_Cursor(UI_typedef *UI_Structure);
+uint8_t UI_GetMaxLine(UI_typedef *UI_Structure);
 
 #endif

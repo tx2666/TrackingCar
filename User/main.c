@@ -13,18 +13,34 @@
 PID_Typedef PID_Motor1;
 PID_Typedef PID_Motor2;
 
-uint8_t Mode = 0;
+uint8_t UIpos = 0;
 
 int main(void)
 {
 	UI_Init();
-	Show_UI(&UI_PID);
-	Show_PID(-1.1, 1.2, 1.3);
+	UI_Show(&UI_root);
+	UIpos = UI_root.Num;
 	Key_Init();
 	
 	while (1)
 	{
 		
+		/* 按钮检测 */
+		if (Key_GetState(KEY_UP, KEY_PRESS))
+		{
+			if 		(UIpos == UI_root.Num)
+			{
+
+			}
+			else if (UIpos == UI_start.Num)
+			{
+
+			}
+			else if (UIpos == UI_PID.Num)
+			{
+
+			}
+		}
 	}
 }
 
