@@ -12,6 +12,7 @@
 
 PID_Typedef PID_Motor1;
 PID_Typedef PID_Motor2;
+PID_Typedef *pPID_Motor;
 
 uint8_t UIpos = 0;
 uint8_t Edit_Mode = 0;
@@ -23,6 +24,7 @@ int main(void)
 	UI_Init();
 	UI_Show(&UI_root);
 	UIpos = UI_root.Num;
+	pPID_Motor = &PID_Motor1;
 	
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
 	
@@ -39,7 +41,7 @@ int main(void)
 		else if (UIpos == UI_PID.Num)
 		{
 			UI_Show(&UI_PID);
-			UI_Show_PID(1.1, 1.2, 1.3);
+			UI_Show_PID(pPID_Motor->Kp, pPID_Motor->Ki, pPID_Motor->Kd);
 		}
 		/* 按钮检测 */
 		/* 上 */
@@ -57,7 +59,18 @@ int main(void)
 			{
 				if (Edit_Mode == 1)
 				{
-
+					if (UI_PID.cursor == 2)
+					{
+						pPID_Motor->Kp += 0.01;
+					}
+					else if (UI_PID.cursor == 3)
+					{
+						pPID_Motor->Ki += 0.01;
+					}
+					else if (UI_PID.cursor == 4)
+					{
+						pPID_Motor->Kd += 0.01;
+					}
 				}
 				else if (Edit_Mode == 0)
 				{
@@ -80,7 +93,18 @@ int main(void)
 			{
 				if (Edit_Mode == 1)
 				{
-
+					if (UI_PID.cursor == 2)
+					{
+						pPID_Motor->Kp -= 0.01;
+					}
+					else if (UI_PID.cursor == 3)
+					{
+						pPID_Motor->Ki -= 0.01;
+					}
+					else if (UI_PID.cursor == 4)
+					{
+						pPID_Motor->Kd -= 0.01;
+					}
 				}
 				else if (Edit_Mode == 0)
 				{
@@ -129,7 +153,14 @@ int main(void)
 				{
 					if (UI_PID.cursor == 1)
 					{
-
+						if (pPID_Motor == &PID_Motor1)
+						{
+							pPID_Motor = &PID_Motor2;
+						}
+						else
+						{
+							pPID_Motor = &PID_Motor1;
+						}
 					}
 					else
 					{
