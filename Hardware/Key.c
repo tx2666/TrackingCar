@@ -169,11 +169,11 @@ void Key_Tick(void)
             else if (((Prev_KeyNum[Key] & KEY_PRESSING) != 0x0) && ((KeyNum[Key] & KEY_PRESSING) != 0x0))
             {
                 count[Key][1] += 20;
-                if (count[Key][1] >= 5*20)
+                if (count[Key][1] >= 5*5*20)
                 {
                     // 时长大于100ms，置一次标志位
                     Key_SetFlag(Key, KEY_LONG);
-                    count[Key][1] = 0;
+                    count[Key][1] = 4*5*20;
                 } 
             }
             /* 松手 */
