@@ -10,9 +10,9 @@
 #include "PID.h"
 #include "UI.h"
 
-PID_Typedef PID_Motor1;
-PID_Typedef PID_Motor2;
-PID_Typedef *pPID_Motor;
+PID_Data_Typedef PID_Motor1;
+PID_Data_Typedef PID_Motor2;
+PID_Data_Typedef *pPID_Motor;
 
 uint8_t UIpos = 0;
 uint8_t Edit_Mode = 0;
