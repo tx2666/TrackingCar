@@ -20,6 +20,8 @@ PID_Tick_Typedef PID_Tick_Motor2;
 uint8_t UIpos = 0;
 uint8_t Edit_Mode = 0;
 
+int16_t Tar_Step = 1;
+
 int main(void)
 {
 	Key_Init();
@@ -74,15 +76,12 @@ int main(void)
 		else if (UIpos == UI_test.Num)
 		{
 			UI_Show(&UI_test);
-			UI_Show_test_PID_Struct(pPID_Motor);
-			if (pPID_Motor == &PID_Motor1)
-			{
-				UI_test_Show_Motor_Num(1);
-			}
-			else if (pPID_Motor == &PID_Motor2)
-			{
-				UI_test_Show_Motor_Num(2);
-			}
+
+		}
+		else if (UIpos == UI_target.Num)
+		{
+			UI_Show(&UI_target);
+			UI_Show_test_PID_Struct(&PID_Motor1, &PID_Motor2, Tar_Step);
 		}
 		/* 按钮检测 */
 		/* 上 */
@@ -130,6 +129,28 @@ int main(void)
 					UI_MoveUp_Cursor(&UI_test);
 				}
 			}
+			else if (UIpos == UI_target.Num)
+			{
+				if (Edit_Mode == 1)
+				{
+					if (UI_target.cursor == 2)
+					{
+						PID_Motor1.Target += Tar_Step;
+					}
+					else if (UI_target.cursor == 3)
+					{
+						PID_Motor2.Target += Tar_Step;
+					}
+					else if (UI_target.cursor == 4)
+					{
+						Tar_Step += 1;
+					}
+				}
+				else if (Edit_Mode == 0)
+				{
+					UI_MoveUp_Cursor(&UI_target);
+				}
+			}
 		}
 		/* 长按 */
 		if (Key_GetState(KEY_UP, KEY_LONG))
@@ -167,12 +188,28 @@ int main(void)
 			}
 			else if (UIpos == UI_test.Num)
 			{
+
+			}
+			else if (UIpos == UI_target.Num)
+			{
 				if (Edit_Mode == 1)
 				{
-					if (UI_test.cursor == 2)
+					if (UI_target.cursor == 2)
 					{
-						pPID_Motor->Target += 1;
+						PID_Motor1.Target += Tar_Step;
 					}
+					else if (UI_target.cursor == 3)
+					{
+						PID_Motor2.Target += Tar_Step;
+					}
+					else if (UI_target.cursor == 4)
+					{
+						Tar_Step += 1;
+					}
+				}
+				else if (Edit_Mode == 0)
+				{
+					
 				}
 			}
 		}
@@ -231,6 +268,28 @@ int main(void)
 					UI_MoveDown_Cursor(&UI_test);
 				}
 			}
+			else if (UIpos == UI_target.Num)
+			{
+				if (Edit_Mode == 1)
+				{
+					if (UI_target.cursor == 2)
+					{
+						PID_Motor1.Target -= Tar_Step;
+					}
+					else if (UI_target.cursor == 3)
+					{
+						PID_Motor2.Target -= Tar_Step;
+					}
+					else if (UI_target.cursor == 4)
+					{
+						Tar_Step -= 1;
+					}
+				}
+				else if (Edit_Mode == 0)
+				{
+					UI_MoveDown_Cursor(&UI_target);
+				}
+			}
 		}
 		/* 长按 */
 		if (Key_GetState(KEY_DOWN, KEY_LONG))
@@ -255,6 +314,28 @@ int main(void)
 					{
 						pPID_Motor->Target -= 1;
 					}
+				}
+			}
+			else if (UIpos == UI_target.Num)
+			{
+				if (Edit_Mode == 1)
+				{
+					if (UI_target.cursor == 2)
+					{
+						PID_Motor1.Target -= Tar_Step;
+					}
+					else if (UI_target.cursor == 3)
+					{
+						PID_Motor2.Target -= Tar_Step;
+					}
+					else if (UI_target.cursor == 4)
+					{
+						Tar_Step -= 1;
+					}
+				}
+				else if (Edit_Mode == 0)
+				{
+					// 位置预留
 				}
 			}
 		}
@@ -337,22 +418,16 @@ int main(void)
 				}
 				else if (Edit_Mode == 0)
 				{
-					if (UI_test.cursor == 1)
+					if (UI_test.cursor == 2)
 					{
-						// 切换监测的电机
-						if (pPID_Motor == &PID_Motor1)
-						{
-							pPID_Motor = &PID_Motor2;
-						}
-						else if (pPID_Motor == &PID_Motor2)
-						{
-							pPID_Motor = &PID_Motor1;
-						}
+						// 换到目标速度修改界面
+						UIpos = UI_target.Num;
+						UI_Reset_Cursor(&UI_test);
+						OLED_Clear();
 					}
 					else if (UI_test.cursor == 2)
 					{
-						Edit_Mode = 1;
-						UI_Show_Edit_Mode(Edit_Mode);
+						// 位置预留
 					}
 					else if (UI_test.cursor == 3)
 					{
@@ -361,6 +436,32 @@ int main(void)
 					else if (UI_test.cursor == 4)
 					{
 						// 位置预留
+					}
+				}
+			}
+			else if (UIpos == UI_target.Num)
+			{
+				if (Edit_Mode == 1)
+				{
+					Edit_Mode = 0;
+					UI_Show_Edit_Mode(Edit_Mode);
+				}
+				else if (Edit_Mode == 0)
+				{
+					if (UI_target.cursor == 2)
+					{
+						Edit_Mode = 1;
+						UI_Show_Edit_Mode(Edit_Mode);
+					}
+					else if (UI_target.cursor == 3)
+					{
+						Edit_Mode = 1;
+						UI_Show_Edit_Mode(Edit_Mode);
+					}
+					else if (UI_target.cursor == 4)
+					{
+						Edit_Mode = 1;
+						UI_Show_Edit_Mode(Edit_Mode);
 					}
 				}
 			}
@@ -421,7 +522,20 @@ int main(void)
 					OLED_Clear();
 				}
 			}
-
+			else if (UIpos == UI_target.Num)
+			{
+				if (Edit_Mode == 1)
+				{
+					Edit_Mode = 0;
+					UI_Show_Edit_Mode(Edit_Mode);
+				}
+				else if (Edit_Mode == 0)
+				{
+					UIpos = UI_test.Num;
+					UI_Reset_Cursor(&UI_target);
+					OLED_Clear();
+				}
+			}
 		}
 	}
 }
@@ -443,8 +557,8 @@ void TIM1_UP_IRQHandler(void)
 		count ++;
 		if (count >= 20)
 			{
-				Serial_Printf("Data:%.2f, %.2f, %.2f, %.2f, %.2f\r\n",
-					PID_Motor2.Target, PID_Motor2.P, PID_Motor2.I, PID_Motor2.D, PID_Motor2.Out);
+				Serial_Printf("Data:%.2f, %.2f, %.2f, %.2f, %.2f, %.2f\r\n",
+					PID_Motor2.Target, PID_Motor2.Current, PID_Motor2.P, PID_Motor2.I, PID_Motor2.D, PID_Motor2.Out);
 				count = 0;
 			}
 		TIM_ClearITPendingBit(TIM1, TIM_IT_Update);
