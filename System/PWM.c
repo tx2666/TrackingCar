@@ -8,7 +8,7 @@ void PWM_Init(void)
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
 	
-	// GPIOA 8 10
+	// GPIOA 0 1
 	GPIO_InitTypeDef GPIO_InitStructure;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1 | GPIO_Pin_0;
@@ -29,7 +29,7 @@ void PWM_Init(void)
 	TIM_TimeBaseInitStructure.TIM_RepetitionCounter = 0;
 	TIM_TimeBaseInit(TIM2, &TIM_TimeBaseInitStructure);
 	
-	// TIM2 Channel 3
+	// TIM2 Channel 1
 	TIM_OCInitTypeDef TIM_OCInitStructure;
 	TIM_OCStructInit(&TIM_OCInitStructure);
 	

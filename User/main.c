@@ -14,6 +14,9 @@ PID_Data_Typedef PID_Motor1;
 PID_Data_Typedef PID_Motor2;
 PID_Data_Typedef *pPID_Motor;
 
+PID_Tick_Typedef PID_Tick_Motor1;
+PID_Tick_Typedef PID_Tick_Motor2;
+
 uint8_t UIpos = 0;
 uint8_t Edit_Mode = 0;
 
@@ -23,10 +26,25 @@ int main(void)
 	Timer_Init();
 	Encoder_Init();
 	Motor_Init();
+	Serial_Init();
 	UI_Init();
-	UI_Show(&UI_root);
+	PID_TypedefStructInit(&PID_Motor1);
+	PID_Tick_Motor1.Mode = ADDITION;
+	PID_Tick_Motor1.Motor_Num = 1;
+	PID_Tick_Motor1.pPID_Data_Structure = &PID_Motor1;
+	PID_TypedefStructInit(&PID_Motor2);
+	PID_Tick_Motor2.Mode = ADDITION;
+	PID_Tick_Motor2.Motor_Num = 2;
+	PID_Tick_Motor2.pPID_Data_Structure = &PID_Motor2;
+
+
 	UIpos = UI_root.Num;
 	pPID_Motor = &PID_Motor1;
+
+	UI_Show(&UI_root);
+
+	Motor1_SetSpeed(0);
+	Motor2_SetSpeed(0);
 	
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
 	
@@ -126,7 +144,26 @@ int main(void)
 			}
 			else if (UIpos == UI_PID.Num)
 			{
+				if (Edit_Mode == 1)
+				{
+					if (UI_PID.cursor == 2)
+					{
+						pPID_Motor->Kp += 0.01;
+					}
+					else if (UI_PID.cursor == 3)
+					{
+						pPID_Motor->Ki += 0.01;
+					}
+					else if (UI_PID.cursor == 4)
+					{
+						pPID_Motor->Kd += 0.01;
+					}
+					
+				}
+				else if (Edit_Mode == 0)
+				{
 
+				}
 			}
 			else if (UIpos == UI_test.Num)
 			{
@@ -393,13 +430,23 @@ int main(void)
 
 void TIM1_UP_IRQHandler(void)
 {
+	static uint16_t count = 0;
 	if (TIM_GetITStatus(TIM1, TIM_IT_Update) == SET)
 	{
 		Key_Tick();
 		Encoder_Tick();
-		PID_Motor1.Current = Encoder1_Count;
-		PID_Motor2.Current = Encoder2_Count;
+		PID_Motor1.Current = -Encoder1_Count;
+		PID_Motor2.Current = -Encoder2_Count;
 
+		PID_Tick(&PID_Tick_Motor1);
+		PID_Tick(&PID_Tick_Motor2);
+		count ++;
+		if (count >= 20)
+			{
+				Serial_Printf("Data:%.2f, %.2f, %.2f, %.2f, %.2f\r\n",
+					PID_Motor2.Target, PID_Motor2.P, PID_Motor2.I, PID_Motor2.D, PID_Motor2.Out);
+				count = 0;
+			}
 		TIM_ClearITPendingBit(TIM1, TIM_IT_Update);
 	}
 }

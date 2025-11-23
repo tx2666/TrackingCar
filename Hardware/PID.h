@@ -30,7 +30,7 @@ typedef struct
 {
 	uint8_t Motor_Num;
 	PID_Mode Mode;
-	PID_Data_Typedef pPID_Data_Structure;
+	PID_Data_Typedef *pPID_Data_Structure;
 } PID_Tick_Typedef;
 
 /* 函数部分 */

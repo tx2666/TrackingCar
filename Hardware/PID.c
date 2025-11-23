@@ -41,75 +41,65 @@ typedef struct
  * @brief PID调控电机速度函数
  * @param Motor_Num 电机编号，从1开始编号
  * @param pid 存储PID参数等相关数据的结构体地址
- * @param Mode PID模式，位置式或者增量式
+ * @param Mode PID模式，POSTION，ADDITION
  * @retval 无，仅对pid对应的结构体数据进行修改
  */
 void PID_Motor_Control(uint8_t Motor_Num, PID_Data_Typedef *pid, PID_Mode Mode)
 {
+	/* 变量传递 */ 
 	pid->Error2 = pid->Error1;
 	pid->Error1 = pid->Error0;
-	pid->Error0 = pid->Current - pid->Target;
-	pid->SumError += pid->Error0;
-
+	// 正值代表大于
+	// 负值代表小于
+	pid->Error0 = pid->Target - pid->Current;
+	
 	float kp = pid->Kp;
 	float ki = pid->Ki;
 	float kd = pid->Kd;
 
-	float Out_P = 0;
-	float Out_I = 0;
-	float Out_D = 0;
+	float OutP = 0, OutI = 0, OutD = 0;
 
+	/* 位置式PID */
 	if (Mode == POSTION)
 	{
-		/* 位置式PID */
-		/* 比例项 */
-		Out_P = kp * pid->Error0;
-		/* 积分项 */
-		Out_I = ki * pid->SumError;
-		/* 微分项 */
-		Out_D = kd * (pid->Error0 - pid->Error1);
-
-		pid->Out = Out_P + Out_I - Out_D;
+		// P
+		OutP = kp * pid->Error0;
+		// I
+		OutI = ki * pid->SumError;
+		// D 系数*(本次误差-上次误差)
+		OutD = kd * (pid->Error0 - pid->Error1);
+		// Out
+		pid->Out = OutP + OutI + OutD;
 	}
+	/* 增量式PID */
 	else if (Mode == ADDITION)
 	{
-		/* 增量式PID */
-		/* 比例项 */
-		Out_P = kp * (pid->Error0 - pid->Error1);						// 计算输出P
-		Out_P *= pid->Magnification;
-		/* 积分项 */
-		Out_I = ki * (pid->Error0);										// 计算输出I
-		/* 微分项 */
-		Out_D = kd * (pid->Error0 - 2 * pid->Error1 + pid->Error2);		// 计算输出D
-		/* 输出 */
-		pid->Out += Out_P + Out_I - Out_D;
-	}
-	else 
-	{
-		return;
+		// P
+		OutP = kp * (pid->Error0 - pid->Error1);
+		// I
+		OutI = ki * pid->Error0;
+		// D
+		OutD = kd * ((pid->Error0 - pid->Error1) - (pid->Error1 - pid->Error2));
+		// Out
+		pid->Out += OutP + OutI + OutD;
 	}
 
-	pid->P = Out_P;
-	pid->I = Out_I;
-	pid->D = Out_D;
+
+
+	pid->P = OutP;
+	pid->I = OutI;
+	pid->D = OutD;
 	/* 输出限幅 */
-	if (pid->Out >= MAX_OUT)
-	{
-		pid->Out = MAX_OUT;
-	}
-	else if (pid->Out <= -MAX_OUT)
-	{
-		pid->Out = -MAX_OUT;
-	}
-
+	if (pid->Out >= MAX_OUT) pid->Out = MAX_OUT;
+	else if (pid->Out <= -MAX_OUT) pid->Out = -MAX_OUT;
 }
 
 void PID_TypedefStructInit(PID_Data_Typedef *PID_Struct)
 {
 	PID_Struct->Magnification = 1;
 	PID_Struct->Kp = 1;
-	PID_Struct->Ki = 0.01;
-	PID_Struct->Kd = 1;
+	PID_Struct->Ki = 2;
+	PID_Struct->Kd = -0.1;
 	PID_Struct->Current = 0;
 	PID_Struct->Target = 0;
 	PID_Struct->P = 0;
@@ -142,13 +132,20 @@ void PID_TypedefStructReset(PID_Data_Typedef *PID_Struct)
 
 void PID_Tick(PID_Tick_Typedef *PID_Tick_Structure)
 {
-	static uint16_t count = 0;
-	if (count >= 10)
+	if (PID_Tick_Structure->pPID_Data_Structure->Count1 >= 10)
 	{
 		PID_Motor_Control(PID_Tick_Structure->Motor_Num,
 			 (PID_Tick_Structure->pPID_Data_Structure),
 			  PID_Tick_Structure->Mode);
-		count = 0;
+		if (PID_Tick_Structure->Motor_Num == 1)
+		{
+			Motor1_SetSpeed(PID_Tick_Structure->pPID_Data_Structure->Out);
+		}
+		else if (PID_Tick_Structure->Motor_Num == 2)
+		{
+			Motor2_SetSpeed(PID_Tick_Structure->pPID_Data_Structure->Out);
+		}
+		PID_Tick_Structure->pPID_Data_Structure->Count1 = 0;
 	}
-	count++;
+	PID_Tick_Structure->pPID_Data_Structure->Count1++;
 }
