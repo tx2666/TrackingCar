@@ -9,6 +9,7 @@
 #include "Motor.h"
 #include "PID.h"
 #include "UI.h"
+#include "Sensor.h"
 
 PID_Data_Typedef PID_Motor1;
 PID_Data_Typedef PID_Motor2;
