@@ -90,6 +90,11 @@ int main(void)
 			UI_Show(&UI_target);
 			UI_Show_test_PID_Struct(&PID_Motor1, &PID_Motor2, Tar_Step);
 		}
+		else if (UIpos == UI_sensor.Num)
+		{
+			UI_Show(&UI_sensor);
+			UI_Show_Sensor(Sensor_Data_Bit);
+		}
 		/* 按钮检测 */
 		/* 上 */
 		/* 单击 */
@@ -418,32 +423,23 @@ int main(void)
 			}
 			else if (UIpos == UI_test.Num)
 			{
-				if (Edit_Mode == 1)
+				if (UI_test.cursor == 2)
 				{
-					Edit_Mode = 0;
-					UI_Show_Edit_Mode(0);
+					// 换到目标Target速度修改界面
+					UIpos = UI_target.Num;
+					UI_Reset_Cursor(&UI_test);
+					OLED_Clear();
 				}
-				else if (Edit_Mode == 0)
+				else if (UI_test.cursor == 3)
 				{
-					if (UI_test.cursor == 2)
-					{
-						// 换到目标速度修改界面
-						UIpos = UI_target.Num;
-						UI_Reset_Cursor(&UI_test);
-						OLED_Clear();
-					}
-					else if (UI_test.cursor == 2)
-					{
-						// 位置预留
-					}
-					else if (UI_test.cursor == 3)
-					{
-						// 位置预留
-					}
-					else if (UI_test.cursor == 4)
-					{
-						// 位置预留
-					}
+					// 换到传感器Sensor数据检测界面
+					UIpos = UI_sensor.Num;
+					UI_Reset_Cursor(&UI_test);
+					OLED_Clear();
+				}
+				else if (UI_test.cursor == 4)
+				{
+					// 位置预留
 				}
 			}
 			else if (UIpos == UI_target.Num)
@@ -471,6 +467,10 @@ int main(void)
 						UI_Show_Edit_Mode(Edit_Mode);
 					}
 				}
+			}
+			else if (UIpos == UI_sensor.Num)
+			{
+				// 没有什么可以按确定的，只能退出
 			}
 		}
 		/* 长按 */
@@ -535,6 +535,12 @@ int main(void)
 					OLED_Clear();
 				}
 			}
+			else if (UIpos == UI_sensor.Num)
+			{
+				UIpos = UI_test.Num;
+				UI_Reset_Cursor(&UI_sensor);
+				OLED_Clear();
+			}
 		}
 	}
 }
@@ -548,6 +554,7 @@ void TIM1_UP_IRQHandler(void)
 	{
 		Key_Tick();
 		Encoder_Tick();
+		Sensor_Tick();
 		PID_Motor1.Current = -Encoder1_Count;
 		PID_Motor2.Current = -Encoder2_Count;
 
@@ -564,7 +571,7 @@ void TIM1_UP_IRQHandler(void)
 				else if (Serial_Out_Mode == SERIAL_OUT_MODE_SENSOR_DATA)
 				{
 					Serial_Printf("Sensor:%d, %d, %d, %d, %d\r\n", 
-						Sensor1_GetState(), Sensor2_GetState(), Sensor3_GetState(), Sensor4_GetState(), Sensor5_GetState());
+						Sensor_Data_Bit[0], Sensor_Data_Bit[1], Sensor_Data_Bit[2], Sensor_Data_Bit[3], Sensor_Data_Bit[4]);
 				}
 
 				count = 0;

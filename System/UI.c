@@ -21,6 +21,7 @@ UI_typedef UI_start;
 UI_typedef UI_PID;
 UI_typedef UI_test;
 UI_typedef UI_target;
+UI_typedef UI_sensor;
 
 /**
  * @brief 获取UI结构体含有字符串的行数
@@ -105,6 +106,28 @@ void UI_Init(void)
     UI_target.cursor  = 2;
     UI_target.cursor0 = 2;
     UI_target.Num = 4;
+    /* Sensor 5 */
+    UI_sensor.exist_title = 0;
+    strcpy(UI_sensor.line1, "Sensor");
+    strcpy(UI_sensor.line2, "");
+    strcpy(UI_sensor.line3, "");
+    strcpy(UI_sensor.line4, "");
+    UI_sensor.default_cursor = 1;
+    UI_sensor.cursor  = 1;
+    UI_sensor.cursor0 = 1;
+    UI_sensor.Num = 5;
+}
+
+/**
+ * @brief 传感器数据展示界面下显示传感器状态
+ * @retval 无
+ */
+void UI_Show_Sensor(uint8_t *SensorData)
+{
+    for (int i = 0; i < 5; i++)
+    {
+        OLED_ShowNum(3, 2+2*i, SensorData[i],1);
+    }
 }
 
 /**

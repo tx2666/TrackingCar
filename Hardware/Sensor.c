@@ -6,6 +6,8 @@
 #define SENSOR_ID_4     ((uint8_t)4)
 #define SENSOR_ID_5     ((uint8_t)5)
 
+uint8_t Sensor_Data_Bit[5];
+
 /**
  * @brief 传感器初始化
  * @retval 无
@@ -103,4 +105,23 @@ uint8_t Sensor_GetState(uint8_t Sensor_id)
         return Sensor5_GetState();
     }
     return 0;
+}
+
+/**
+ * @brief 固定时间更新一次传感器数据
+ * @retval 无
+ */
+void Sensor_Tick(void)
+{
+    static uint16_t count = 0;
+    count ++;
+    if (count >= 20)
+    {
+        Sensor_Data_Bit[0] = Sensor1_GetState();
+        Sensor_Data_Bit[1] = Sensor2_GetState();
+        Sensor_Data_Bit[2] = Sensor3_GetState();
+        Sensor_Data_Bit[3] = Sensor4_GetState();
+        Sensor_Data_Bit[4] = Sensor5_GetState();
+        count = 0;
+    }
 }
