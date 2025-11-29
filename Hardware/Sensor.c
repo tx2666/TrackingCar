@@ -132,17 +132,29 @@ void Sensor_Denoising(uint8_t *Sensor_Data)
                 count = 0;
             }
         }
+        
+        if (i == 4 && count > maxcount)
+        {
+            maxcount = count;
+            start = i - count;
+            count = 0;
+        }
     }
 
     if (start == -1)
     {
         return;
     }
+
     for (int i = 0; i < 5; i++)
     {
         if (i >= start && i < start + maxcount)
         {
             Sensor_Data[i] = 1;
+        }
+        else 
+        {
+            Sensor_Data[i] = 0;
         }
     }
 }
@@ -162,6 +174,8 @@ void Sensor_Tick(void)
         Sensor_Data_Bit[2] = Sensor3_GetState();
         Sensor_Data_Bit[3] = Sensor4_GetState();
         Sensor_Data_Bit[4] = Sensor5_GetState();
+        Sensor_Denoising(Sensor_Data_Bit);
+
         count = 0;
     }
 }

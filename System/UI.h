@@ -35,6 +35,7 @@ void UI_PID_Show_Motor_Num(uint8_t Motor_Num);
 void UI_Show_test(int Target1, int Target2);
 void UI_Show_test_PID_Struct(PID_Data_Typedef *pPID_Data_Structure1, PID_Data_Typedef *pPID_Data_Structure2, int Step);
 void UI_test_Show_Motor_Num(uint8_t Motor_Num);
+void UI_Show_Start(int Target1, int Target2);
 void UI_Show_Sensor(uint8_t SensorData[5]);
 void UI_Show_Serial(uint8_t Serial_Mode);
 

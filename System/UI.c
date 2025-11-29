@@ -146,8 +146,8 @@ void UI_Init(void)
  */
 void UI_Show_Start(int Target1, int Target2)
 {
-    OLED_ShowSignedNum(2, 4, Target1, 3);
-    OLED_ShowSignedNum(2, 8, Target2, 3);
+    OLED_ShowSignedNum(2, 5, Target1, 3);
+    OLED_ShowSignedNum(2, 10, Target2, 3);
 }
 
 /**

@@ -17,7 +17,7 @@
 
 PID_Data_Typedef PID_Motor1;
 PID_Data_Typedef PID_Motor2;
-PID_Data_Typedef PID_Sensor;
+PID_Data_Typedef PID_Sensor_Data;
 PID_Data_Typedef *pPID_Motor;
 
 PID_Tick_Typedef PID_Tick_Motor1;
@@ -26,6 +26,7 @@ PID_Tick_Typedef PID_Tick_Motor2;
 uint8_t UIpos = 0;
 uint8_t Edit_Mode = 0;
 uint8_t Serial_Out_Mode = SERIAL_OUT_MODE_MOTOR_DATA;
+uint8_t start_flag = 0;
 
 int16_t Tar_Step = 1;
 
@@ -49,7 +50,8 @@ int main(void)
 	PID_Tick_Motor2.Mode = ADDITION;
 	PID_Tick_Motor2.Motor_Num = 2;
 	PID_Tick_Motor2.pPID_Data_Structure = &PID_Motor2;
-	PID_TypedefStructInit(&PID_Sensor);
+	PID_TypedefStructInit(&PID_Sensor_Data);
+	PID_Sensor_Data.Ki = 10;
 
 
 	UIpos = UI_root.Num;
@@ -115,6 +117,16 @@ void UI_Exhibit(void)
 	else if (UIpos == UI_go.Num)
 	{
 		UI_Show(&UI_go);
+		UI_Show_Start(PID_Motor1.Target, PID_Motor2.Target);
+		OLED_ShowChar(1, 7, 'D');
+		if (PID_Sensor_Data.Out > 0)
+		{
+			OLED_ShowChar(1, 6, 'L');
+		}
+		else if (PID_Sensor_Data.Out < 0)
+		{
+			OLED_ShowChar(1, 6, 'R');
+		}
 	}
 }
 
@@ -448,6 +460,9 @@ void Key_Monitor(void)
 				UIpos = UI_go.Num;
 				UI_Reset_Cursor(&UI_start);
 				OLED_Clear();
+				start_flag = 1;
+				PID_Motor1.Target = 20;
+				PID_Motor2.Target = 20;
 			}
 		}
 		else if (UIpos == UI_PID.Num)
@@ -638,18 +653,20 @@ void Key_Monitor(void)
 			UIpos = UI_root.Num;
 			UI_Reset_Cursor(&UI_go);
 			OLED_Clear();
-
+			start_flag = 0;
 			PID_TypedefStructReset(&PID_Motor1);
 			PID_TypedefStructReset(&PID_Motor2);
-			PID_TypedefStructReset(&PID_Sensor);
+			PID_TypedefStructReset(&PID_Sensor_Data);
+			PID_Motor2.Target = 0;
+			PID_Motor1.Target = 0;
 		}
 	}
 }
 
-
 void TIM1_UP_IRQHandler(void)
 {
 	static uint16_t count = 0;
+	static uint16_t count2 = 0;
 	if (TIM_GetITStatus(TIM1, TIM_IT_Update) == SET)
 	{
 		Key_Tick();
@@ -661,9 +678,37 @@ void TIM1_UP_IRQHandler(void)
 		PID_Tick(&PID_Tick_Motor1);
 		PID_Tick(&PID_Tick_Motor2);
 		count ++;
-		if (count%10 == 0)
+		count2 ++;
+		if (count2 >= 50)
 		{
-			
+			if (start_flag == 1)
+			{
+				PID_Sensor_Caculate(&PID_Sensor_Data, ADDITION);
+
+				if (PID_Sensor_Data.Out > 0)
+				{
+					PID_Motor2.Target = Target_Speed - PID_Sensor_Data.Out + 5;
+				}
+				else if (PID_Sensor_Data.Out < 0)
+				{
+					PID_Motor1.Target = Target_Speed + PID_Sensor_Data.Out + 5;
+				}
+
+				if (Sensor_Data_Bit[2] == 1)
+				{
+					if (PID_Motor2.Target <= Target_Speed)
+					{
+						PID_Motor2.Target += 2;
+					}
+
+					if (PID_Motor1.Target <= Target_Speed)
+					{
+						PID_Motor1.Target += 2;
+					}
+				}
+
+			}
+			count2 = 0;
 		}
 		if (count >= 20)
 		{

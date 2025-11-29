@@ -1,6 +1,8 @@
 #include "stm32f10x.h"                  // Device header
 #include "PWM.h"
 
+uint16_t Target_Speed = 60;
+
 void Motor_Init(void)
 {
 	// 开启时钟
