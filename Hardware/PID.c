@@ -105,23 +105,23 @@ void PID_Sensor_Error_Caculate(PID_Data_Typedef *pData)
 	float Severe = 3;
 	float Light = 0.5;
 	float Err = 0;
-	if (Sensor_Data_Bit[0])
+	if (Sensor_Data_Bit[0] == 1)
 	{
 		Err -= Severe;
 	}
-	if (Sensor_Data_Bit[1])
+	if (Sensor_Data_Bit[1] == 1)
 	{
 		Err -= Light;
 	}
-	if (Sensor_Data_Bit[2])
+	if (Sensor_Data_Bit[2] == 1)
 	{
 		Err += 0;
 	}
-	if (Sensor_Data_Bit[3])
+	if (Sensor_Data_Bit[3] == 1)
 	{
 		Err += Light;
 	}
-	if (Sensor_Data_Bit[4])
+	if (Sensor_Data_Bit[4] == 1)
 	{
 		Err += Severe;
 	}
@@ -162,6 +162,15 @@ void PID_Sensor_Caculate(PID_Data_Typedef *pData, PID_Mode Mode)
 		Out_P = kp * (pData->Error0 - pData->Error1);
 		// I
 		Out_I = ki * pData->Error0;
+		// 积分限幅
+		if (Out_I > 50)
+		{
+			Out_I = 50;
+		}
+		else if (Out_I < -50)
+		{
+			Out_I = -50;
+		}
 		// D
 		Out_D = kd * ((pData->Error0 - pData->Error1) - (pData->Error1 - pData->Error2));
 		// Out

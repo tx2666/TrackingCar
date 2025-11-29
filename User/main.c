@@ -51,7 +51,9 @@ int main(void)
 	PID_Tick_Motor2.Motor_Num = 2;
 	PID_Tick_Motor2.pPID_Data_Structure = &PID_Motor2;
 	PID_TypedefStructInit(&PID_Sensor_Data);
-	PID_Sensor_Data.Ki = 10;
+	PID_Sensor_Data.Kp = 1;
+	PID_Sensor_Data.Ki = 20;
+	PID_Sensor_Data.Kd = -0.5;
 
 
 	UIpos = UI_root.Num;
@@ -684,36 +686,13 @@ void TIM1_UP_IRQHandler(void)
 			if (start_flag == 1)
 			{
 				PID_Sensor_Caculate(&PID_Sensor_Data, ADDITION);
-				
-				if (PID_Sensor_Data.Out > 0)
-				{
-					PID_Motor2.Target = Target_Speed - PID_Sensor_Data.Out;
-					PID_Motor1.Target = Target_Speed;
-				}
-				else if (PID_Sensor_Data.Out < 0)
-				{
-					PID_Motor1.Target = Target_Speed + PID_Sensor_Data.Out;
-					PID_Motor2.Target = Target_Speed;
-				}
-				
-				// if (Sensor_Data_Bit[2] == 1)
-				// {
-				// 	if (PID_Motor2.Target <= Target_Speed)
-				// 	{
-				// 		PID_Motor2.Target += 4;
-				// 	}
-					
-				// 	if (PID_Motor1.Target <= Target_Speed)
-				// 	{
-				// 		PID_Motor1.Target += 4;
-				// 	}
-				// }
 				uint8_t count_Signal = 0;
 				for (int i = 0; i < 5; i++)
 				{
+					// 判断是否丢失目标
 					count_Signal += Sensor_Data_Bit[i];
 				}
-
+				// 如果传感器都是未检测到黑线，那么就倒车
 				if (count_Signal == 0)
 				{
 					count_untrack ++;
@@ -722,7 +701,32 @@ void TIM1_UP_IRQHandler(void)
 						// 倒车
 						PID_Motor1.Target = -0.5 * Target_Speed;
 						PID_Motor2.Target = -0.5 * Target_Speed;
+						count_untrack = 0;
 					}
+				}
+				else
+				{
+					if (PID_Sensor_Data.Out > 0)
+					{
+						PID_Motor2.Target = Target_Speed - PID_Sensor_Data.Out;
+						PID_Motor1.Target = Target_Speed;
+					}
+					else if (PID_Sensor_Data.Out < 0)
+					{
+						PID_Motor1.Target = Target_Speed + PID_Sensor_Data.Out;
+						PID_Motor2.Target = Target_Speed;
+					}
+					// if (Sensor_Data_Bit[2] == 1)
+					// {
+					// 	if (PID_Motor2.Target <= Target_Speed)
+					// 	{
+					// 		PID_Motor2.Target += 4;
+					// 	}
+					// 	if (PID_Motor1.Target <= Target_Speed)
+					// 	{
+					// 		PID_Motor1.Target += 4;
+					// 	}
+					// }
 				}
 				
 			}
@@ -732,6 +736,7 @@ void TIM1_UP_IRQHandler(void)
 		PID_Tick(&PID_Tick_Motor2);
 		if (count >= 10)
 		{
+			// 串口输出部分
 			if (Serial_Out_Mode == SERIAL_OUT_MODE_MOTOR_DATA)
 			{
 				Serial_Printf("Data:%.2f, %.2f, %.2f, %.2f, %.2f, %.2f\r\n",
