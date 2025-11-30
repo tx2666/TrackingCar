@@ -198,7 +198,7 @@ void PID_TypedefStructInit(PID_Data_Typedef *PID_Struct)
 {
 	PID_Struct->Magnification = 1;
 	PID_Struct->Kp = 1.0;
-	PID_Struct->Ki = 0.9;
+	PID_Struct->Ki = 1.3;
 	PID_Struct->Kd = -0.2;
 	PID_Struct->Current = 0;
 	PID_Struct->Target = 0;

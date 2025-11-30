@@ -52,7 +52,7 @@ int main(void)
 	PID_Tick_Motor2.pPID_Data_Structure = &PID_Motor2;
 	PID_TypedefStructInit(&PID_Sensor_Data);
 	PID_Sensor_Data.Kp = 1;
-	PID_Sensor_Data.Ki = 25;
+	PID_Sensor_Data.Ki = 5;
 	PID_Sensor_Data.Kd = -0.5;
 
 
